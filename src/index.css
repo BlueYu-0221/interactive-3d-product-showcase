@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global resets & smooth scroll baseline for the marketing page */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  /* Deep space background so the fixed WebGL canvas blends seamlessly */
+  background-color: #05060a;
+  color: #f5f5f7;
+  overflow-x: hidden;
+}
+
+/* Prevent text selection flicker while scroll-driven animations run */
+* {
+  -webkit-font-smoothing: antialiased;
+}

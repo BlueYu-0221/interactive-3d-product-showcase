@@ -1,0 +1,5 @@
+node_modules
+.joycode
+.DS_Store
+dist
+build
