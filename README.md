@@ -3,4 +3,4 @@ An Apple-inspired high-performance 3D product marketing page built with React, T
 
 ## 预览地址
 
-在线预览：_待补充_ <!-- TODO: 部署后在此填入预览链接 -->
+在线预览：[Preview](https://blueyu-0221.github.io/interactive-3d-product-showcase/) 
