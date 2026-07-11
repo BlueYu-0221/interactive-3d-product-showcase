@@ -24,10 +24,14 @@ gsap.registerPlugin(ScrollTrigger)
  * -----------------------------------------------------------------------------
  */
 
-// 左右耳罩子物体名称：请用 3D 软件 / 控制台打印 model 结构后，替换成真实名字。
-// 提示：加载完成后代码会 console.log 出模型层级树，方便你直接复制名字填入。
-const LEFT_NAME = '请替换为左耳罩名字'
-const RIGHT_NAME = '请替换为右耳罩名字'
+// =============================================================================
+// ⬇⬇⬇ 【在这里替换耳罩名字】 ⬇⬇⬇
+// 打开浏览器控制台，找到形如  Node Name: xxx  Type: Mesh  的 11 条日志，
+// 把左 / 右耳罩对应的 name 直接复制粘贴到下面两个常量里即可。
+// =============================================================================
+const LEFT_EARCUP_REPLACE = 'Ear_piece_left_rubber'
+const RIGHT_EARCUP_REPLACE = 'Ear_piece_right_rubber'
+// =============================================================================
 
 export default function ThreeCanvas() {
   // canvas DOM 引用：把 WebGLRenderer 直接绑定到真实 canvas，便于 CSS 精确控制。
@@ -100,7 +104,7 @@ export default function ThreeCanvas() {
     const loader = new GLTFLoader()
     // 用 Vite 的 BASE_URL 拼接资源路径，兼容配置了 base（如 /interactive-3d-product-showcase/）的场景。
     // 直接写死 '/headphone.glb' 会忽略 base 前缀，导致部署 / 预览时 404。
-    const modelUrl = `${import.meta.env.BASE_URL}headphone.glb`.replace(/\/{2,}/g, '/')
+    const modelUrl = `${import.meta.env.BASE_URL}headphone2.glb`.replace(/\/{2,}/g, '/')
     loader.load(
       modelUrl,
       (gltf: GLTF) => {
@@ -118,27 +122,17 @@ export default function ThreeCanvas() {
         const scale = maxAxis > 0 ? targetSize / maxAxis : 1
         model.scale.setScalar(scale)
 
-        // --- 4.3 打印模型层级树，帮助你查到左右耳罩的真实名字 ---
-        // 拿到名字后，把上方 LEFT_NAME / RIGHT_NAME 替换即可。
-        console.group('[headphone.glb] 模型层级结构（用于定位左右耳罩名字）')
-        model.traverse((child: THREE.Object3D) => {
-          if (child.name) {
-            console.log(`name: "${child.name}"  type: ${child.type}`)
-          }
-        })
-        console.groupEnd()
-
-        // --- 4.4 抓取左右耳罩子物体 ---
-        leftComponent = model.getObjectByName(LEFT_NAME) ?? null
-        rightComponent = model.getObjectByName(RIGHT_NAME) ?? null
+        // --- 4.3 通过名字抓取左右耳罩子物体（Mesh）的引用 ---
+        leftComponent = model.getObjectByName(LEFT_EARCUP_REPLACE) ?? null
+        rightComponent = model.getObjectByName(RIGHT_EARCUP_REPLACE) ?? null
 
         if (leftComponent) leftInitialX = leftComponent.position.x
         if (rightComponent) rightInitialX = rightComponent.position.x
 
         if (!leftComponent || !rightComponent) {
           console.warn(
-            '[ThreeCanvas] 未能通过名字找到左右耳罩，请根据上方打印的层级树，' +
-              '替换 LEFT_NAME / RIGHT_NAME 常量。当前拆解动画将被跳过。',
+            '[ThreeCanvas] 未能通过名字找到左右耳罩，请根据上方 Scan Model Nodes 日志，' +
+              '替换 LEFT_EARCUP_REPLACE / RIGHT_EARCUP_REPLACE 常量。当前拆解动画将被跳过。',
           )
         }
 
@@ -195,7 +189,7 @@ export default function ThreeCanvas() {
         timeline.to(
           leftComponent.position,
           {
-            x: leftInitialX - 1.5, // 基于初始位置向左推开
+            x: leftInitialX - 2.0, // 基于初始位置向左推开
             ease: 'power1.inOut',
             duration: 0.5, // 占 timeline 后半段
           },
@@ -206,7 +200,7 @@ export default function ThreeCanvas() {
         timeline.to(
           rightComponent.position,
           {
-            x: rightInitialX + 1.5, // 基于初始位置向右推开
+            x: rightInitialX + 2.0, // 基于初始位置向右推开
             ease: 'power1.inOut',
             duration: 0.5,
           },
@@ -279,8 +273,8 @@ export default function ThreeCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      // fixed + inset-0 铺满视口；-z-10 置于 HTML 内容之下；
-      // pointer-events-none 让滚动 / 点击事件穿透到下层 HTML。
+      // 固定铺满视口，置于最底层（-z-10）并关闭指针事件（pointer-events-none），
+      // 让上层 HTML 内容正常接收滚动与点击，3D 画面仅作为背景由滚动驱动。
       className="fixed inset-0 -z-10 h-full w-full pointer-events-none"
     />
   )
